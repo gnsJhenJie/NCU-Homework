@@ -1,0 +1,7 @@
+﻿  PB.cpp
+c:\users\拉馬\downloads\編譯器\程式\pb\pb.cpp(34): error C2280: 'bool std::regex_match<std::char_traits<char>,std::allocator<char>,std::allocator<std::sub_match<std::_String_const_iterator<std::_String_val<std::_Simple_types<_Ty>>>>>,char,std::regex_traits<char>>(const std::basic_string<char,std::char_traits<char>,std::allocator<_Ty>> &&,std::match_results<std::_String_const_iterator<std::_String_val<std::_Simple_types<_Ty>>>,std::allocator<std::sub_match<std::_String_const_iterator<std::_String_val<std::_Simple_types<_Ty>>>>>> &,const std::basic_regex<char,std::regex_traits<char>> &,std::regex_constants::match_flag_type)': 嘗試參考被刪除的函式
+          with
+          [
+              _Ty=char
+          ]
+  c:\program files (x86)\microsoft visual studio\2017\community\vc\tools\msvc\14.13.26128\include\regex(2794): note: 請參閱 'std::regex_match' 的宣告
