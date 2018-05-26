@@ -12,7 +12,7 @@ int writerNumber = 1;
 int readerNumber = 1;
 time_t initTimer,timer;
 int data = 0;
-int seed = 5;
+int OCR = 0;
 pthread_mutex_t mutex1 = PTHREAD_MUTEX_INITIALIZER;     //lock of thread
 
 
@@ -23,13 +23,14 @@ string I2S(int n){      //int to string
 }
 
 void* childReader(void *nope){      //reader thread
+    srand(time(NULL)+readerNumber);     //seed of rand
     string number = I2S(readerNumber++);        //get the number
     string s = "Reader #"+number+" : ";         //make it's string
     string first = s + "enters the critical section \n";
     string second,second2;
     string third = s + "exits the critical section \n";
     int randNumber;
-    randNumber=rand_r(&seed)%3+2;
+    randNumber=rand()%3+2;
     Sleep(randNumber*1000);
     while(1){
         timer=time(NULL);
@@ -38,13 +39,26 @@ void* childReader(void *nope){      //reader thread
         }
 
         cout<<first;
+
+
+        while(!pthread_mutex_trylock(&mutex1)){}        //confirm no writer is writing
+        pthread_mutex_unlock(&mutex1);
+
+
         second = s + "reads database : " + I2S(data) + "\n";
+
+
+
+
         cout<<second;
-        randNumber=rand_r(&seed)%3+2;
-        second2 = s + "sleep " + I2S(randNumber) + "seconds\n";
+        randNumber=rand()%3+2;
+        second2 = s + "sleep " + I2S(randNumber) + " seconds\n";
         cout<<second2;
         cout<<third;
         readTime++;
+        if(randNumber+timer-initTimer>=120){       //time's out after sleep
+            break;
+        }
         Sleep(randNumber*1000);
     }
 
@@ -53,13 +67,14 @@ void* childReader(void *nope){      //reader thread
 }
 
 void* childWriter(void *nope){      //writer thread
+    srand(time(NULL)+writerNumber);     //seed of rand
     string number = I2S(writerNumber++);        //get the number
     string s="Writer #"+number+" : ";         //make it's string
     string first = s + "enters the critical section \n";
     string second,second2;
     string third = s + "exits the critical section \n";
     int randNumber;
-    randNumber=rand_r(&seed)%6+5;
+    randNumber=rand()%6+5;
     Sleep(randNumber*1000);
     while(1){
         timer=time(NULL);
@@ -67,15 +82,28 @@ void* childWriter(void *nope){      //writer thread
             break;
         }
 
+
+        pthread_mutex_lock(&mutex1);        //lock
+
+
         cout<<first;
+        data = rand()%50+1;
         second = s + "updates database : " + I2S(data) + "\n";
         cout<<second;
-        randNumber=rand_r(&seed)%6+5;
-        second2 = s + "sleep " + I2S(randNumber) + "seconds\n";
+        randNumber=rand()%6+5;
+        second2 = s + "sleep " + I2S(randNumber) + " seconds\n";
         cout<<second2;
         cout<<third;
-        Sleep(randNumber*1000);
         updateTime++;
+
+        pthread_mutex_unlock(&mutex1);      //unlock
+
+
+        if(randNumber+timer-initTimer>=120){       //time's out after sleep
+            break;
+        }
+        Sleep(randNumber*1000);
+
     }
 
 
