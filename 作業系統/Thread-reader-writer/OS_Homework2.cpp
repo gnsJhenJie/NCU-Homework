@@ -38,7 +38,7 @@ void* childReader(void *nope){      //reader thread
 
     while(1){
         timer=time(NULL);
-        if(timer-initTimer>=120){       //time's out
+        if(timer-initTimer>=60){       //time's out
             break;
         }
 
@@ -47,7 +47,7 @@ void* childReader(void *nope){      //reader thread
 
         readerNow++;
 
-        cout<<first;
+                                        cout<<first;
 
 
 
@@ -56,16 +56,29 @@ void* childReader(void *nope){      //reader thread
 
 
 
-        cout<<second;
-        randNumber=rand()%3+2;
+                                        cout<<second;
+        randNumber=rand()%2;
+        if(randNumber==1){
+            randNumber = 2;
+        }
+        else{
+            randNumber = 4;
+        }
+
+        if(time(NULL)+randNumber-initTimer >= 60){
+            cout<<third;
+            readerNow--;
+            break;
+        }
+
         second2 = s + "sleep " + I2S(randNumber) + " seconds\n";
-        cout<<second2;
+                                        cout<<second2;
         readTime++;
 
         timer=time(NULL);
         while(time(NULL)-timer<randNumber){}
 
-        cout<<third;
+                                        cout<<third;
 
         readerNow--;
     }
@@ -89,7 +102,7 @@ void* childWriter(void *nope){      //writer thread
 
     while(1){
         timer=time(NULL);
-        if(timer-initTimer>=120){       //time's out
+        if(timer-initTimer>=60){       //time's out
             break;
         }
 
@@ -100,7 +113,18 @@ void* childWriter(void *nope){      //writer thread
         data = rand()%50+1;
         second = s + "updates database : " + I2S(data) + "\n";
         cout<<second;
-        randNumber=rand()%6+5;
+        randNumber=rand()%2;
+        if(randNumber==1){
+            randNumber = 5;
+        }
+        else{
+            randNumber = 10;
+        }
+        if(time(NULL)+randNumber-initTimer >= 60){
+            cout<<third;
+            pthread_mutex_unlock(&mutex1);
+            break;
+        }
         second2 = s + "sleep " + I2S(randNumber) + " seconds\n";
         cout<<second2;
         updateTime++;
@@ -137,7 +161,9 @@ int main(){
         pthread_create(&reader[i],NULL,childReader,(void *)NULL);
     }
 
-    Sleep(120000);      //time limit
+    while(time(NULL)-initTimer < 60){
+        //cout<<time(NULL)-initTimer<<endl;
+    }
     cout<<endl;
     pthread_mutex_lock(&mutex1);
     while(readerNow>0){}
