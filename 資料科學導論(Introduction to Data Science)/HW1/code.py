@@ -7,6 +7,13 @@ class FileManager():
     def __init__(self):
         pass
 
+    def initialize(self):
+        self.setosa = []
+        self.versicolor = []
+        self.virginica = []
+        self.train = []
+        self.test = []
+
     def get_file(self, filename):
         if filename == '':
             filename = "iris.data.txt"
@@ -14,11 +21,7 @@ class FileManager():
         if self.exist:
             self.filename = filename
             self.file = open(self.filename, 'r').read()
-            self.setosa = []
-            self.versicolor = []
-            self.virginica = []
-            self.train = []
-            self.test = []
+            self.initialize()
             self.classfy_file()
         else:
             print("the file '" + filename + "' doesn't exist.")
@@ -38,40 +41,42 @@ class FileManager():
                 elif result == "Iris-virginica":
                     self.virginica.append(
                         [float(w), float(x), float(y), float(z), result])
-        self.devide_train_test()
+        self.flower_devide()
 
-    def devide_train_test(self):
-        for i in range(len(self.setosa)):
-            if i <= (len(self.setosa)/2):
-                self.train.append(self.setosa[i])
+    def flower_devide(self):
+        self.devide_train_test(self.setosa)
+        self.devide_train_test(self.versicolor)
+        self.devide_train_test(self.virginica)
+
+    def devide_train_test(self, kind):
+        for i in range(len(kind)):
+            if i < (len(kind)/2):
+                self.train.append(kind[i])
             else:
-                self.test.append(self.setosa[i])
-        for i in range(len(self.versicolor)):
-            if i <= (len(self.versicolor)/2):
-                self.train.append(self.versicolor[i])
-            else:
-                self.test.append(self.versicolor[i])
-        for i in range(len(self.virginica)):
-            if i <= (len(self.virginica)/2):
-                self.train.append(self.virginica[i])
-            else:
-                self.test.append(self.virginica[i])
+                self.test.append(kind[i])
 
 
 class KNNCalculator():
     def __init__(self):
         pass
 
-    def initialize(self, train, test):
-        self.correct = 0
-        self.wrong = 0
+    def work(self, train, test):
+        self.test_correct = 0
+        self.test_wrong = 0
+        self.train_correct = 0
+        self.train_wrong = 0
         self.train = train
         self.test = test
         self.k = int(input("Please the k value in KNN : "))
-        self.knn_calculate()
+        self.calculate()
 
-    def knn_calculate(self):
-        for i in range(len(self.test)):
+    def calculate(self):
+        self.knn_calculate(self.test, "test")
+        self.knn_calculate(self.train, "train")
+
+    def knn_calculate(self, data, kind):
+        correct, wrong = 0, 0
+        for i in range(len(data)):
             k_point = []
             for n in range(self.k):
                 k_point.append([999999.999999, "None"])
@@ -79,7 +84,7 @@ class KNNCalculator():
                       [0, "Iris-versicolor"], [0, "Iris-virginica"]]
             for j in range(len(self.train)):
                 p1 = self.train[j][0:4]
-                p2 = self.test[i][0:4]
+                p2 = data[i][0:4]
                 distance = self.distance_calculate(p1, p2)
                 if distance < k_point[0][0]:
                     k_point[0] = [distance, self.train[j][4]]
@@ -93,18 +98,22 @@ class KNNCalculator():
                     flower[2][0] += 1
             flower.sort(reverse=True)
             knn_result = flower[0][1]
-            origin_result = self.test[i][4]
+            origin_result = data[i][4]
             if knn_result == origin_result:
                 print("test point_" + str(i+1) + "'s KNN result is " +
                       knn_result + ". (Exactly is " + origin_result + ".)")
-                self.correct += 1
+                correct += 1
             else:
                 print("\033[1;31;40mtest point_" + str(i+1) + "'s KNN result is " +
                       knn_result + ". (Exactly is " + origin_result + ".)\033[0m")
-                self.wrong += 1
-            sum = self.correct + self.wrong
-            self.correct = round((self.correct * 100) / sum, 5)
-            self.wrong = round((self.wrong * 100) / sum, 5)
+                wrong += 1
+        sum = correct + wrong
+        if kind == "test":
+            self.test_correct = round((correct * 100) / sum, 4)
+            self.test_wrong = round((wrong * 100) / sum, 4)
+        else:
+            self.train_correct = round((correct * 100) / sum, 4)
+            self.train_wrong = round((wrong * 100) / sum, 4)
 
     def distance_calculate(self, p1, p2):
         vector1 = np.array(p1)
@@ -123,11 +132,12 @@ while True:
     else:
         fileManager.get_file(filename)
         if fileManager.exist:
-            knn_calculator.initialize(fileManager.train, fileManager.test)
+            knn_calculator.work(fileManager.train, fileManager.test)
             print(
                 "---------------------------KNN result---------------------------")
-            print("\t\tcorrect(%)\twrong(%)")
-            print("test data\t" + str(knn_calculator.correct) +
-                  "\t\t" + str(knn_calculator.wrong))
+            print(
+                "\t\ttrain_correct(%)\ttrain_wrong(%)\t\ttest_correct(%)\t\ttest_wrong(%)")
+            print("test data\t" + str(knn_calculator.train_correct) + "\t\t\t" + str(knn_calculator.train_wrong) +
+                  "\t\t\t" + str(knn_calculator.test_correct) + "\t\t\t" + str(knn_calculator.test_wrong))
             print(
                 "----------------------------------------------------------------")
