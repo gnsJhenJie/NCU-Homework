@@ -77,6 +77,17 @@ class KNNCalculator():
         self.k = int(input("Please the k value in KNN : "))
         self.calculate()
 
+    def auto(self, train, test, k):
+        # initialize variable
+        self.test_correct = 0
+        self.test_wrong = 0
+        self.train_correct = 0
+        self.train_wrong = 0
+        self.train = train
+        self.test = test
+        self.k = k
+        self.calculate()
+
     def calculate(self):
         # calculate test error rate
         self.knn_calculate(self.test, "test")
@@ -142,27 +153,51 @@ class KNNCalculator():
         return np.linalg.norm(vector1-vector2)
 
 
-# initialize essential object
-fileManager = FileManager()
-knn_calculator = KNNCalculator()
+class MainProgram():
+    def __init__(self):
+        # initialize essential object
+        self.fileManager = FileManager()
+        self.knn_calculator = KNNCalculator()
 
-while True:
-    # user input data file for KNN
-    filename = input(
-        "Please input the file name to start KNN. Or input 'end' to close. (Default is iris.data.txt)\n : ")
-    if filename == "end":
-        break
-    else:
-        fileManager.get_file(filename)
-        if fileManager.exist:
-            knn_calculator.work(fileManager.train, fileManager.test)
+    def loop_run(self):
+        # repeat doing knn
+        while True:
+            # user input data file for KNN
+            filename = input(
+                "Please input the file name to start KNN. Or input 'end' to close. (Default is iris.data.txt)\n : ")
+            if filename == "end":
+                break
+            else:
+                self.fileManager.get_file(filename)
+                if self.fileManager.exist:
+                    self.knn_calculator.work(
+                        self.fileManager.train, self.fileManager.test)
 
+                    # show the knn result
+                    print(
+                        "---------------------------KNN result---------------------------")
+                    print(
+                        "\t\ttrain_correct(%)\ttrain_wrong(%)\t\ttest_correct(%)\t\ttest_wrong(%)")
+                    print("test data\t" + str(self.knn_calculator.train_correct) + "\t\t\t" + str(self.knn_calculator.train_wrong) +
+                          "\t\t\t" + str(self.knn_calculator.test_correct) + "\t\t\t" + str(self.knn_calculator.test_wrong))
+                    print(
+                        "----------------------------------------------------------------")
+
+    def one_run(self, filename, k):
+        # do knn one time
+        self.fileManager.get_file(filename)
+        if self.fileManager.exist:
+            self.knn_calculator.auto(
+                self.fileManager.train, self.fileManager.test, k)
             # show the knn result
-            print(
-                "---------------------------KNN result---------------------------")
+            print("---------------------------KNN result---------------------------")
             print(
                 "\t\ttrain_correct(%)\ttrain_wrong(%)\t\ttest_correct(%)\t\ttest_wrong(%)")
-            print("test data\t" + str(knn_calculator.train_correct) + "\t\t\t" + str(knn_calculator.train_wrong) +
-                  "\t\t\t" + str(knn_calculator.test_correct) + "\t\t\t" + str(knn_calculator.test_wrong))
-            print(
-                "----------------------------------------------------------------")
+            print("test data\t" + str(self.knn_calculator.train_correct) + "\t\t\t" + str(self.knn_calculator.train_wrong) +
+                  "\t\t\t" + str(self.knn_calculator.test_correct) + "\t\t\t" + str(self.knn_calculator.test_wrong))
+            print("----------------------------------------------------------------")
+
+
+if __name__ == "__main__":
+    main = MainProgram()
+    main.loop_run()
