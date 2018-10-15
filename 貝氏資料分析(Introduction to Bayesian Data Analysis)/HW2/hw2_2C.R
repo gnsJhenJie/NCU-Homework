@@ -1,0 +1,5 @@
+x = seq(from=-8, to=8, by=0.01)
+d1 = dnorm(x, 0, 0.5)
+d2 = dnorm(x, 0, 3)
+plot(x, d1, xlab = "y", ylab = "p(y)", type = "l", col="blue")
+lines(x, d2, col="red")
